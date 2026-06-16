@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Title Lab</title>
+    <link rel="stylesheet" href="./styles.css?v=20260616" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Title Lab</p>
+          <h1>爆款标题体检器</h1>
+          <p class="subtitle">像整理书桌一样整理标题：先诊断，再改写，最后用数据复盘。</p>
+        </div>
+        <button class="icon-button" id="resetButton" type="button" aria-label="清空">
+          <span aria-hidden="true">↺</span>
+        </button>
+      </header>
+
+      <div class="app-frame">
+        <aside class="section-nav" aria-label="页面目录">
+          <p class="nav-title">目录</p>
+          <a href="#workspace">标题诊断</a>
+          <a href="#diagnosis">问题体检</a>
+          <a href="#rewrite">改写与模板</a>
+          <a href="#library">对标标题库</a>
+          <a href="#experiment">A/B 复盘</a>
+          <a href="#manager">样本管理</a>
+          <a href="#history">最近分析</a>
+        </aside>
+
+        <section class="workspace" aria-label="Title Lab">
+
+        <div class="layout section-block" id="workspace">
+          <section class="panel input-panel">
+            <label class="field">
+              <span>标题</span>
+              <textarea id="titleInput" rows="4" maxlength="80">普通人怎么开始副业</textarea>
+            </label>
+
+            <div class="controls-grid">
+              <label class="field">
+                <span>平台</span>
+                <select id="platformSelect">
+                  <option value="xiaohongshu">小红书</option>
+                  <option value="bilibili">B站</option>
+                  <option value="douyin">抖音</option>
+                  <option value="wechat">公众号</option>
+                  <option value="x">X / Twitter</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>内容类型</span>
+                <select id="categorySelect">
+                  <option value="side">副业</option>
+                  <option value="career">职场</option>
+                  <option value="ai">AI 工具</option>
+                  <option value="growth">个人成长</option>
+                  <option value="content">自媒体</option>
+                  <option value="product">产品服务</option>
+                </select>
+              </label>
+            </div>
+
+            <fieldset class="segments">
+              <legend>目标</legend>
+              <label><input type="radio" name="goal" value="click" checked />点击</label>
+              <label><input type="radio" name="goal" value="save" />收藏</label>
+              <label><input type="radio" name="goal" value="trust" />信任</label>
+            </fieldset>
+
+            <button class="primary-button" id="analyzeButton" type="button">
+              分析标题
+            </button>
+          </section>
+
+          <section class="panel result-panel" aria-live="polite">
+            <div class="score-row">
+              <div class="score-ring" id="scoreRing">
+                <span id="scoreValue">0</span>
+              </div>
+              <div>
+                <p class="eyebrow">诊断</p>
+                <h2 id="scoreLabel">等待分析</h2>
+                <p id="scoreSummary">输入标题后开始。</p>
+              </div>
+            </div>
+
+            <div class="meter-list" id="meterList"></div>
+            <div class="score-explain">
+              <p class="eyebrow">评分依据</p>
+              <ul id="scoreExplainList"></ul>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel diagnosis section-block" id="diagnosis">
+          <div>
+            <p class="eyebrow">标题类型</p>
+            <h2 id="titleType">-</h2>
+          </div>
+          <ul id="issueList"></ul>
+        </section>
+
+        <section class="split section-block" id="rewrite">
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">改写</p>
+                <h2>可测试版本</h2>
+              </div>
+              <button class="ghost-button" id="shuffleButton" type="button">换一批</button>
+            </div>
+            <div class="rewrite-list" id="rewriteList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">模板</p>
+                <h2>匹配结构</h2>
+              </div>
+            </div>
+            <div class="template-list" id="templateList"></div>
+          </div>
+        </section>
+
+        <section class="panel library-panel section-block" id="library">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">对标库</p>
+              <h2>相似标题拆解</h2>
+            </div>
+            <span class="library-count" id="libraryCount">0 条样本</span>
+          </div>
+          <div class="library-list" id="libraryList"></div>
+        </section>
+
+        <section class="panel experiment-panel section-block" id="experiment">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">实验复盘</p>
+              <h2>标题 A/B 记录</h2>
+            </div>
+            <span class="library-count" id="experimentCount">0 条实验</span>
+          </div>
+
+          <div class="experiment-grid">
+            <div class="experiment-form">
+              <label class="field">
+                <span>发布标题</span>
+                <input id="experimentTitle" type="text" maxlength="100" placeholder="把发布后的标题粘到这里" />
+              </label>
+
+              <div class="controls-grid">
+                <label class="field">
+                  <span>平台</span>
+                  <select id="experimentPlatform">
+                    <option value="xiaohongshu">小红书</option>
+                    <option value="bilibili">B站</option>
+                    <option value="douyin">抖音</option>
+                    <option value="wechat">公众号</option>
+                    <option value="x">X / Twitter</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>内容类型</span>
+                  <select id="experimentCategory">
+                    <option value="side">副业</option>
+                    <option value="career">职场</option>
+                    <option value="ai">AI 工具</option>
+                    <option value="growth">个人成长</option>
+                    <option value="content">自媒体</option>
+                    <option value="product">产品服务</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="metrics-grid">
+                <label class="field">
+                  <span>曝光/阅读</span>
+                  <input id="metricViews" type="number" min="0" inputmode="numeric" placeholder="1000" />
+                </label>
+                <label class="field">
+                  <span>点赞</span>
+                  <input id="metricLikes" type="number" min="0" inputmode="numeric" placeholder="80" />
+                </label>
+                <label class="field">
+                  <span>收藏</span>
+                  <input id="metricSaves" type="number" min="0" inputmode="numeric" placeholder="35" />
+                </label>
+                <label class="field">
+                  <span>评论</span>
+                  <input id="metricComments" type="number" min="0" inputmode="numeric" placeholder="12" />
+                </label>
+              </div>
+
+              <div class="manager-actions">
+                <button class="primary-button" id="saveExperimentButton" type="button">保存实验</button>
+                <button class="ghost-button" id="useCurrentTitleButton" type="button">使用当前标题</button>
+                <button class="ghost-button danger-button" id="clearExperimentsButton" type="button">清空实验</button>
+              </div>
+              <p class="import-status" id="experimentStatus">记录发布后的真实数据，工具会自动排序。</p>
+            </div>
+
+            <div class="insight-card">
+              <p class="eyebrow">个人洞察</p>
+              <h3 id="experimentInsight">暂无足够数据</h3>
+              <p id="experimentInsightText">保存实验后会开始总结高表现标题特征，样本越多判断越稳。</p>
+              <div class="metric-summary" id="metricSummary"></div>
+            </div>
+          </div>
+
+          <div class="experiment-list" id="experimentList"></div>
+        </section>
+
+        <section class="panel manager-panel section-block" id="manager">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">标题库管理</p>
+              <h2>导入你的样本</h2>
+            </div>
+            <span class="library-count" id="customLibraryCount">0 条自定义</span>
+          </div>
+
+          <div class="manager-grid">
+            <label class="field">
+              <span>CSV 数据</span>
+              <textarea id="csvInput" class="csv-input" rows="7" spellcheck="false" placeholder="title,platform,category,pattern,hook,signals&#10;AI 工具越多，越要先固定自己的工作流,wechat,ai,趋势 + 反向建议,不是推荐更多工具，而是强调系统,AI 工具|工作流|越多"></textarea>
+            </label>
+
+            <div class="import-card">
+              <p>字段：title, platform, category, pattern, hook, signals</p>
+              <p>platform 可用：xiaohongshu, bilibili, douyin, wechat, x</p>
+              <p>category 可用：side, career, ai, growth, content, product</p>
+              <p>signals 用竖线分隔，例如：AI|工作流|效率</p>
+              <div class="manager-actions">
+                <button class="primary-button" id="importCsvButton" type="button">导入 CSV</button>
+                <button class="ghost-button" id="exportLibraryButton" type="button">导出 JSON</button>
+                <button class="ghost-button danger-button" id="clearCustomLibraryButton" type="button">清空自定义</button>
+              </div>
+              <p class="import-status" id="importStatus">还没有导入自定义样本。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel history-panel section-block" id="history">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">历史</p>
+              <h2>最近分析</h2>
+            </div>
+            <button class="ghost-button" id="clearHistoryButton" type="button">清除</button>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </section>
+        </section>
+      </div>
+    </main>
+
+    <script src="./library.js?v=20260616"></script>
+    <script src="./app.js?v=20260616"></script>
+  </body>
+</html>
