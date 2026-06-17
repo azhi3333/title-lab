@@ -1,10 +1,6 @@
 # Promotion Copy
 
-下面是 Title Lab 第一批推广文案。发布前把 Demo 链接替换为真实地址，例如：
-
-```text
-https://azhi3333.github.io/title-lab/
-```
+下面是 Title Lab 第一批推广文案。当前在线 Demo：`https://azhi3333.github.io/title-lab/`。
 
 ## 1. 小红书 / 即刻：产品发布版
 
@@ -25,7 +21,7 @@ https://azhi3333.github.io/title-lab/
 
 特点：不需要账号，不上传数据，纯静态网页，数据只存在本地浏览器。
 
-Demo：<替换为 Demo 链接>
+Demo：https://azhi3333.github.io/title-lab/
 
 ## 2. X / Twitter：独立开发版
 
@@ -44,8 +40,8 @@ It also suggests rewrite variants and lets you track simple A/B results after pu
 
 No account. No backend. No data upload. Just a static web app using localStorage.
 
-Demo: <replace with demo link>
-GitHub: <replace with repo link>
+Demo: https://azhi3333.github.io/title-lab/
+GitHub: https://github.com/azhi3333/title-lab
 
 ## 3. V2EX / 开发者社区：求反馈版
 
@@ -64,8 +60,8 @@ GitHub: <replace with repo link>
 
 技术上没有后端，也不需要登录。所有数据存在浏览器 localStorage。
 
-Demo：<替换为 Demo 链接>
-GitHub：<替换为 GitHub 链接>
+Demo：https://azhi3333.github.io/title-lab/
+GitHub：https://github.com/azhi3333/title-lab
 
 想听听大家对评分维度、交互和真实使用场景的建议。
 
@@ -92,7 +88,7 @@ GitHub：<替换为 GitHub 链接>
 
 我做这个工具的目的不是制造标题党，而是帮创作者在发布前多问一次：这个标题具体吗？有收益吗？用户为什么要点？
 
-Demo：<替换为 Demo 链接>
+Demo：https://azhi3333.github.io/title-lab/
 
 ## 5. Product Hunt / 海外发布预热版
 
@@ -110,4 +106,4 @@ The product is intentionally lightweight: no login, no backend, no data upload.
 
 It is useful for creators who publish on social platforms, newsletters, blogs, or short-form video channels and want a simple pre-publish title checklist.
 
-Demo: <replace with demo link>
+Demo: https://azhi3333.github.io/title-lab/
