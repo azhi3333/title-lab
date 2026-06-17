@@ -3,8 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Title Lab</title>
-    <link rel="stylesheet" href="./styles.css?v=20260616" />
+    <title>Title Lab｜爆款标题体检器</title>
+    <meta
+      name="description"
+      content="Title Lab 是面向内容创作者的爆款标题体检器：诊断标题、生成改写版本、对标标题库，并记录发布后的 A/B 数据。"
+    />
+    <meta name="theme-color" content="#6f7f62" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Title Lab｜爆款标题体检器" />
+    <meta property="og:description" content="先诊断，再改写，最后用数据复盘你的内容标题。" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Title Lab｜爆款标题体检器" />
+    <meta name="twitter:description" content="先诊断，再改写，最后用数据复盘你的内容标题。" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="stylesheet" href="./styles.css?v=20260617" />
   </head>
   <body>
     <main class="shell">
@@ -75,6 +88,10 @@
             <button class="primary-button" id="analyzeButton" type="button">
               分析标题
             </button>
+            <div class="share-actions">
+              <button class="ghost-button" id="shareCardButton" type="button">生成分享卡片</button>
+              <p class="share-status" id="shareStatus">生成适合小红书和 X / Twitter 发布的诊断图。</p>
+            </div>
           </section>
 
           <section class="panel result-panel" aria-live="polite">
@@ -260,9 +277,14 @@
         </section>
         </section>
       </div>
+
+      <footer class="site-footer">
+        <p>Title Lab 是纯静态工具，标题样本和复盘数据默认只保存在当前浏览器。</p>
+        <a href="./PRIVACY.md">隐私说明</a>
+      </footer>
     </main>
 
-    <script src="./library.js?v=20260616"></script>
-    <script src="./app.js?v=20260616"></script>
+    <script src="./library.js?v=20260617"></script>
+    <script src="./app.js?v=20260617"></script>
   </body>
 </html>

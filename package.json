@@ -1,0 +1,22 @@
+{
+  "name": "title-lab",
+  "version": "0.1.0",
+  "description": "爆款标题体检器：诊断标题、生成改写版本、对标标题库，并记录发布后的 A/B 数据。",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "check": "node --check app.js && node --check tests/title-lab.test.js",
+    "test": "node --test tests/title-lab.test.js",
+    "ci": "npm run check && npm test"
+  },
+  "keywords": [
+    "title",
+    "copywriting",
+    "creator-tools",
+    "static-site"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

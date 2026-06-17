@@ -1,0 +1,16 @@
+{
+  "name": "Title Lab",
+  "short_name": "Title Lab",
+  "description": "爆款标题体检器：诊断标题、生成改写版本、对标标题库，并记录 A/B 数据。",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f6f3ee",
+  "theme_color": "#6f7f62",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml"
+    }
+  ]
+}

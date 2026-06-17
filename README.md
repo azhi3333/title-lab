@@ -15,10 +15,10 @@
 
 ## Quick Start
 
-这个项目是纯静态页面，不需要安装依赖。
+这个项目是纯静态页面，不需要安装依赖。推荐使用 npm 脚本启动，方便和 CI 保持一致。
 
 ```bash
-python3 -m http.server 4173
+npm start
 ```
 
 然后打开：
@@ -62,23 +62,51 @@ AI 工具越多，越要先固定自己的工作流,wechat,ai,趋势 + 反向建
 项目使用 Node.js 内置测试运行器，不需要额外依赖。
 
 ```bash
-node --test tests/title-lab.test.js
+npm test
 ```
 
 语法检查：
 
 ```bash
-node --check app.js
-node --check tests/title-lab.test.js
+npm run check
 ```
+
+完整检查：
+
+```bash
+npm run ci
+```
+
+## Deployment
+
+Title Lab 可以部署到 GitHub Pages、Netlify、Vercel 或任意静态文件服务器。部署前建议运行：
+
+```bash
+npm run ci
+```
+
+更多发布步骤见 `docs/DEPLOYMENT.md`。
+
+## Privacy
+
+当前版本不需要账号，不依赖后端服务，也不会主动上传标题、样本库或 A/B 数据。自定义样本、实验记录和历史分析默认保存在当前浏览器的 `localStorage`。
+
+详细说明见 `PRIVACY.md`。
 
 ## Project Structure
 
 ```text
 .
 ├── app.js
+├── docs
+│   └── DEPLOYMENT.md
+├── favicon.svg
 ├── index.html
 ├── library.js
+├── package.json
+├── PRIVACY.md
+├── robots.txt
+├── site.webmanifest
 ├── styles.css
 └── tests
     └── title-lab.test.js

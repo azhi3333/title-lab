@@ -51,6 +51,7 @@ function createHarness() {
     "analyzeButton",
     "resetButton",
     "shuffleButton",
+    "shareCardButton",
     "clearHistoryButton",
     "importCsvButton",
     "exportLibraryButton",
@@ -87,6 +88,7 @@ function createHarness() {
     "metricSummary",
     "experimentList",
     "historyList",
+    "shareStatus",
   ];
   const elements = Object.fromEntries(ids.map((id) => [id, new FakeElement(id)]));
   const radios = {
@@ -183,4 +185,51 @@ test("experiment metrics reward real engagement", () => {
 
   assert.ok(high.score > low.score);
   assert.equal(low.saveRate, 0);
+});
+
+test("builds share card data from a diagnosis", () => {
+  const { core } = createHarness();
+  const title = "普通人怎么开始副业";
+  const result = core.scoreTitle(title, "xiaohongshu", "side", "click");
+  const rewrites = core.makeRewrites(title, "xiaohongshu", "side", "click");
+  const issues = core.diagnose(title, result, "side");
+  const card = core.buildShareCardData({
+    title,
+    platform: "xiaohongshu",
+    category: "side",
+    goal: "click",
+    result,
+    type: core.detectType(title),
+    issues,
+    rewrites,
+  });
+
+  assert.equal(card.title, title);
+  assert.equal(card.platformName, "小红书");
+  assert.equal(card.goalName, "点击");
+  assert.ok(card.weakest.length > 0);
+  assert.ok(card.rewrite.includes("副业"));
+});
+
+test("renders copy buttons for rewritten titles safely", () => {
+  const { core, elements } = createHarness();
+  core.renderRewrites([
+    { text: "普通人做副业，先跑通第一步", tags: ["小红书", "收益"] },
+    { text: '<img src=x onerror="alert(1)">', tags: ["测试"] },
+  ]);
+
+  assert.equal((elements.rewriteList.innerHTML.match(/data-copy-title=/g) || []).length, 2);
+  assert.ok(elements.rewriteList.innerHTML.includes("复制"));
+  assert.ok(elements.rewriteList.innerHTML.includes("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"));
+});
+
+test("html provides every element required by app bindings", () => {
+  const html = fs.readFileSync(path.join(rootDir, "index.html"), "utf8");
+  const app = fs.readFileSync(path.join(rootDir, "app.js"), "utf8");
+  const requiredIds = [...app.matchAll(/querySelector\("#([A-Za-z0-9_-]+)"\)/g)].map((match) => match[1]);
+  const missingIds = requiredIds.filter((id) => !html.includes(`id="${id}"`));
+
+  assert.deepEqual(missingIds, []);
+  assert.match(html, /<meta\s+name="description"/);
+  assert.match(html, /<link\s+rel="manifest"/);
 });

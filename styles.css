@@ -102,6 +102,29 @@ h3 {
   line-height: 1.7;
 }
 
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 18px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  border-top: 1px solid var(--line);
+}
+
+.site-footer a {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
 .app-frame {
   display: grid;
   grid-template-columns: 184px minmax(0, 1fr);
@@ -504,6 +527,31 @@ select:focus {
   font-weight: 780;
 }
 
+.rewrite-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.copy-button {
+  min-height: 30px;
+  flex: 0 0 auto;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--accent-dark);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.copy-button:hover,
+.copy-button.is-copied {
+  border-color: #cfc6b8;
+  background: var(--paper-soft);
+}
+
 .meta {
   display: flex;
   flex-wrap: wrap;
@@ -579,6 +627,25 @@ select:focus {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 4px;
+}
+
+.share-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.share-actions .ghost-button {
+  min-height: 42px;
+}
+
+.share-status {
+  flex: 1 1 220px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 760;
 }
 
 .manager-actions .primary-button,

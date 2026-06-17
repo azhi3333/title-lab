@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Title Lab">
+  <rect width="64" height="64" rx="14" fill="#f6f3ee"/>
+  <rect x="10" y="12" width="44" height="40" rx="8" fill="#fffdfa" stroke="#ded7cc" stroke-width="2"/>
+  <path d="M19 25h26M19 33h18M19 41h23" stroke="#46543e" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="47" cy="18" r="7" fill="#b7794b"/>
+</svg>

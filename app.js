@@ -4,6 +4,7 @@ const categorySelect = document.querySelector("#categorySelect");
 const analyzeButton = document.querySelector("#analyzeButton");
 const resetButton = document.querySelector("#resetButton");
 const shuffleButton = document.querySelector("#shuffleButton");
+const shareCardButton = document.querySelector("#shareCardButton");
 const clearHistoryButton = document.querySelector("#clearHistoryButton");
 const importCsvButton = document.querySelector("#importCsvButton");
 const exportLibraryButton = document.querySelector("#exportLibraryButton");
@@ -40,9 +41,11 @@ const experimentInsightText = document.querySelector("#experimentInsightText");
 const metricSummary = document.querySelector("#metricSummary");
 const experimentList = document.querySelector("#experimentList");
 const historyList = document.querySelector("#historyList");
+const shareStatus = document.querySelector("#shareStatus");
 const baseTitleLibrary = window.titleLibrary || [];
 let customTitleLibrary = loadCustomLibrary();
 let titleLibrary = mergeLibraries(baseTitleLibrary, customTitleLibrary);
+let lastAnalysis = null;
 
 const platformTone = {
   xiaohongshu: {
@@ -509,11 +512,57 @@ function renderRewrites(items) {
       (item) => `
         <article class="rewrite">
           <div class="rewrite-title">${escapeHtml(item.text)}</div>
-          <div class="meta">${item.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+          <div class="rewrite-footer">
+            <div class="meta">${item.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+            <button class="copy-button" type="button" data-copy-title="${escapeHtml(item.text)}">复制</button>
+          </div>
         </article>
       `,
     )
     .join("");
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Some embedded browsers block Clipboard API writes even on localhost.
+    }
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-999px";
+  document.body.append(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Copy command failed");
+}
+
+async function handleRewriteCopy(event) {
+  const button = event.target.closest("[data-copy-title]");
+  if (!button) return;
+
+  const text = button.dataset.copyTitle;
+  try {
+    await copyText(text);
+    button.textContent = "已复制";
+    button.classList.add("is-copied");
+    window.setTimeout(() => {
+      button.textContent = "复制";
+      button.classList.remove("is-copied");
+    }, 1400);
+  } catch {
+    button.textContent = "复制失败";
+    window.setTimeout(() => {
+      button.textContent = "复制";
+    }, 1600);
+  }
 }
 
 function renderTemplates(title, category) {
@@ -568,6 +617,209 @@ function renderLibraryMatches(matches) {
       `,
     )
     .join("");
+}
+
+function buildShareCardData({ title, platform, category, goal, result, type, issues, rewrites }) {
+  const weakest = [...result.meters]
+    .sort((a, b) => a.value - b.value)
+    .slice(0, 3)
+    .map((meter) => ({
+      label: meter.label,
+      value: meter.value,
+      reason: meter.reason,
+    }));
+  const strengths = result.meters
+    .filter((meter) => meter.value >= 76)
+    .slice(0, 2)
+    .map((meter) => meter.label);
+
+  return {
+    title,
+    score: result.score,
+    label: labelForScore(result.score),
+    type,
+    platformName: platformTone[platform]?.name || platform,
+    categoryName: categoryWords[category]?.[0] || category,
+    goalName: goalLabel(goal),
+    summary: platformTone[platform]?.hint || "",
+    weakest,
+    strengths,
+    issue: issues[0] || "结构已经比较完整，可以直接拿去做 A/B 测试。",
+    rewrite: rewrites[0]?.text || title,
+  };
+}
+
+function drawRoundRect(context, x, y, width, height, radius) {
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.lineTo(x + width - radius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + radius);
+  context.lineTo(x + width, y + height - radius);
+  context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  context.lineTo(x + radius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - radius);
+  context.lineTo(x, y + radius);
+  context.quadraticCurveTo(x, y, x + radius, y);
+  context.closePath();
+}
+
+function wrapCanvasText(context, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+  const characters = [...String(text)];
+  const lines = [];
+  let line = "";
+
+  characters.forEach((character) => {
+    const nextLine = line + character;
+    if (context.measureText(nextLine).width > maxWidth && line) {
+      lines.push(line);
+      line = character;
+    } else {
+      line = nextLine;
+    }
+  });
+  if (line) lines.push(line);
+
+  const visible = lines.slice(0, maxLines);
+  if (lines.length > maxLines) {
+    visible[maxLines - 1] = `${visible[maxLines - 1].slice(0, Math.max(0, visible[maxLines - 1].length - 1))}...`;
+  }
+  visible.forEach((item, index) => context.fillText(item, x, y + index * lineHeight));
+  return y + visible.length * lineHeight;
+}
+
+function fillRoundedRect(context, x, y, width, height, radius, color) {
+  context.fillStyle = color;
+  drawRoundRect(context, x, y, width, height, radius);
+  context.fill();
+}
+
+function drawShareCard(canvas, data) {
+  const context = canvas.getContext("2d");
+  const width = 1080;
+  const height = 1440;
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  context.scale(scale, scale);
+
+  context.fillStyle = "#f6f3ee";
+  context.fillRect(0, 0, width, height);
+  context.fillStyle = "rgba(255, 253, 250, 0.72)";
+  context.fillRect(0, 0, width, height);
+
+  fillRoundedRect(context, 64, 64, 952, 1312, 34, "#fffdfa");
+  context.strokeStyle = "#ded7cc";
+  context.lineWidth = 2;
+  drawRoundRect(context, 64, 64, 952, 1312, 34);
+  context.stroke();
+
+  context.fillStyle = "#46543e";
+  context.font = "800 30px Inter, system-ui, sans-serif";
+  context.fillText("TITLE LAB", 112, 134);
+
+  context.fillStyle = "#756f66";
+  context.font = "700 28px Inter, system-ui, sans-serif";
+  context.fillText(`${data.platformName} / ${data.categoryName} / ${data.goalName}`, 112, 180);
+
+  context.fillStyle = "#24211d";
+  context.font = "860 64px Inter, system-ui, sans-serif";
+  const titleBottom = wrapCanvasText(context, data.title, 112, 280, 760, 82, 3);
+
+  const scoreX = 804;
+  const scoreY = 236;
+  context.beginPath();
+  context.arc(scoreX, scoreY, 118, 0, Math.PI * 2);
+  context.fillStyle = "#fbf8f2";
+  context.fill();
+  context.strokeStyle = scoreColor(data.score);
+  context.lineWidth = 18;
+  context.beginPath();
+  context.arc(scoreX, scoreY, 100, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (data.score / 100));
+  context.stroke();
+  context.fillStyle = "#24211d";
+  context.font = "900 72px Inter, system-ui, sans-serif";
+  context.textAlign = "center";
+  context.fillText(data.score, scoreX, scoreY + 18);
+  context.font = "800 26px Inter, system-ui, sans-serif";
+  context.fillStyle = "#756f66";
+  context.fillText(data.label, scoreX, scoreY + 60);
+  context.textAlign = "left";
+
+  let cursorY = Math.max(430, titleBottom + 64);
+  fillRoundedRect(context, 112, cursorY, 856, 116, 18, "#fbf8f2");
+  context.fillStyle = "#46543e";
+  context.font = "850 28px Inter, system-ui, sans-serif";
+  context.fillText(`标题类型：${data.type}`, 144, cursorY + 46);
+  context.fillStyle = "#756f66";
+  context.font = "700 25px Inter, system-ui, sans-serif";
+  wrapCanvasText(context, data.summary, 144, cursorY + 84, 780, 34, 1);
+
+  cursorY += 170;
+  context.fillStyle = "#24211d";
+  context.font = "850 34px Inter, system-ui, sans-serif";
+  context.fillText("优先补强", 112, cursorY);
+  cursorY += 30;
+
+  data.weakest.forEach((meter) => {
+    cursorY += 42;
+    context.fillStyle = "#24211d";
+    context.font = "820 28px Inter, system-ui, sans-serif";
+    context.fillText(`${meter.label} ${meter.value}`, 112, cursorY);
+    context.fillStyle = "#ebe5dc";
+    fillRoundedRect(context, 312, cursorY - 22, 420, 14, 7, "#ebe5dc");
+    fillRoundedRect(context, 312, cursorY - 22, Math.max(18, 420 * (meter.value / 100)), 14, 7, scoreColor(meter.value));
+    context.fillStyle = "#756f66";
+    context.font = "700 23px Inter, system-ui, sans-serif";
+    wrapCanvasText(context, meter.reason, 112, cursorY + 36, 780, 32, 1);
+    cursorY += 44;
+  });
+
+  cursorY += 44;
+  fillRoundedRect(context, 112, cursorY, 856, 176, 20, "#24211d");
+  context.fillStyle = "#fffdfa";
+  context.font = "850 30px Inter, system-ui, sans-serif";
+  context.fillText("建议改写", 144, cursorY + 52);
+  context.font = "820 34px Inter, system-ui, sans-serif";
+  wrapCanvasText(context, data.rewrite, 144, cursorY + 106, 790, 46, 2);
+
+  cursorY += 236;
+  context.fillStyle = "#24211d";
+  context.font = "850 32px Inter, system-ui, sans-serif";
+  context.fillText("一句诊断", 112, cursorY);
+  context.fillStyle = "#756f66";
+  context.font = "720 28px Inter, system-ui, sans-serif";
+  wrapCanvasText(context, data.issue, 112, cursorY + 48, 856, 42, 2);
+
+  context.fillStyle = "#a39b8f";
+  context.font = "760 24px Inter, system-ui, sans-serif";
+  context.fillText("生成自 Title Lab / 爆款标题体检器", 112, 1304);
+  context.fillText("把标题先体检，再改写，最后复盘。", 112, 1344);
+}
+
+function scoreColor(score) {
+  if (score >= 76) return "#557a4a";
+  if (score >= 56) return "#a46a34";
+  return "#9f4f45";
+}
+
+function downloadCanvas(canvas, filename) {
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = canvas.toDataURL("image/png");
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+
+function generateShareCard() {
+  const analysis = analyze();
+  if (!analysis) return;
+  const canvas = document.createElement("canvas");
+  drawShareCard(canvas, buildShareCardData(analysis));
+  downloadCanvas(canvas, `title-lab-${Date.now()}.png`);
+  shareStatus.textContent = "分享卡片已生成并下载。";
 }
 
 function importCsv() {
@@ -765,7 +1017,7 @@ function analyze() {
   const title = titleInput.value.trim();
   if (!title) {
     titleInput.focus();
-    return;
+    return null;
   }
 
   const platform = platformSelect.value;
@@ -775,6 +1027,8 @@ function analyze() {
   const type = detectType(title);
   const issues = diagnose(title, result, category);
   const label = labelForScore(result.score);
+  const rewrites = makeRewrites(title, platform, category, goal);
+  const matches = findLibraryMatches(title, platform, category);
 
   scoreValue.textContent = result.score;
   scoreRing.style.setProperty("--score", result.score);
@@ -786,15 +1040,27 @@ function analyze() {
   renderMeters(result.meters);
   renderScoreExplanation(result, platform, category, goal);
   renderIssues(issues);
-  renderRewrites(makeRewrites(title, platform, category, goal));
+  renderRewrites(rewrites);
   renderTemplates(title, category);
-  renderLibraryMatches(findLibraryMatches(title, platform, category));
+  renderLibraryMatches(matches);
+  lastAnalysis = {
+    title,
+    platform,
+    category,
+    goal,
+    result,
+    type,
+    issues,
+    rewrites,
+    matches,
+  };
   saveHistory({
     title,
     score: result.score,
     platform: platformTone[platform].name,
     type,
   });
+  return lastAnalysis;
 }
 
 analyzeButton.addEventListener("click", analyze);
@@ -816,6 +1082,9 @@ clearHistoryButton.addEventListener("click", () => {
   renderHistory();
 });
 
+shareCardButton.addEventListener("click", generateShareCard);
+rewriteList.addEventListener("click", handleRewriteCopy);
+
 importCsvButton.addEventListener("click", importCsv);
 exportLibraryButton.addEventListener("click", exportLibrary);
 clearCustomLibraryButton.addEventListener("click", clearCustomLibrary);
@@ -835,9 +1104,11 @@ renderHistory();
 analyze();
 
 window.titleLabCore = {
+  buildShareCardData,
   clamp,
   detectType,
   diagnose,
+  drawShareCard,
   escapeHtml,
   experimentMetrics,
   findLibraryMatches,
@@ -846,6 +1117,7 @@ window.titleLabCore = {
   makeRewrites,
   normalizeCsvItems,
   parseCsv,
+  renderRewrites,
   scoreTitle,
   titleFeatures,
   tokenize,
