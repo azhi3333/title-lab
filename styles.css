@@ -102,6 +102,56 @@ h3 {
   line-height: 1.7;
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.primary-link,
+.secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 820;
+  text-decoration: none;
+}
+
+.primary-link {
+  background: var(--ink);
+  color: #fffdfa;
+}
+
+.secondary-link {
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 250, 0.8);
+  color: var(--ink);
+}
+
+.hero-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-points li {
+  padding: 6px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(255, 253, 250, 0.68);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 720;
+}
+
 .site-footer {
   display: flex;
   flex-wrap: wrap;
@@ -791,6 +841,10 @@ select:focus {
     padding-top: 6px;
   }
 
+  .hero-points {
+    max-width: 520px;
+  }
+
   .layout,
   .split,
   .diagnosis,
@@ -824,6 +878,10 @@ select:focus {
   .section-head,
   .score-row {
     align-items: flex-start;
+  }
+
+  .hero-actions {
+    display: grid;
   }
 
   .score-row {
