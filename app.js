@@ -431,11 +431,69 @@ function colorForScore(score) {
   return "var(--bad)";
 }
 
+function cleanTitlePart(value) {
+  return String(value)
+    .replace(/^[，,：:。！？!?\s]+|[，,：:。！？!?\s]+$/g, "")
+    .replace(/^(你|我|他|她|它)\s*/, "")
+    .trim();
+}
+
+function originalTitleRewrites(title) {
+  const normalized = title.replace(/\s+/g, " ").trim();
+  const contrastMatch = normalized.match(/^(.*?)[，,]\s*(?:你|我)?不是(.+?)[，,]\s*(?:而是|只是)(.+?)[。！？!?]*$/);
+
+  if (contrastMatch) {
+    const scene = cleanTitlePart(contrastMatch[1]);
+    const assumedCause = cleanTitlePart(contrastMatch[2]);
+    const realCause = cleanTitlePart(contrastMatch[3]);
+    return [
+      `${scene}，问题可能不在${assumedCause}，而在${realCause}`,
+      `${scene}总不顺？先别怪${assumedCause}，检查是不是${realCause}`,
+      `很多人${scene}卡住，不是因为${assumedCause}，而是${realCause}`,
+      `${scene}：比起${assumedCause}，更该先解决${realCause}`,
+      `为什么${scene}读起来不顺？可能是${realCause}`,
+      `${scene}先改这一点：别让${realCause}拖累表达`,
+      `${scene}避坑：你以为是${assumedCause}，其实是${realCause}`,
+      `${scene}自查清单：重点看看是不是${realCause}`,
+    ];
+  }
+
+  const discoveryMatch = normalized.match(/^(.*?)[，,]\s*(?:你|我)?才知道(.+?)[。！？!?]*$/);
+  if (discoveryMatch) {
+    const experience = cleanTitlePart(discoveryMatch[1]);
+    const discovery = cleanTitlePart(discoveryMatch[2]);
+    const naturalDiscovery = discovery.replace(/该这样/g, "原来要这样").replace(/应该这样/g, "原来要这样");
+    return [
+      `${experience}，我才明白：${discovery}`,
+      `${naturalDiscovery}，我居然现在才知道`,
+      `${experience}才弄明白，${naturalDiscovery}`,
+      `${discovery}？这次终于整理清楚了`,
+      `${naturalDiscovery}，以前真的做错了`,
+      `${discovery}，记住这几个关键步骤`,
+      `${experience}才发现，${naturalDiscovery}`,
+      `${discovery}：一份更容易照着做的清单`,
+    ];
+  }
+
+  const core = cleanTitlePart(normalized);
+  return [
+    `${core}，真正关键的是这 3 点`,
+    `${core}？先把最容易忽略的一点讲清楚`,
+    `关于${core}，很多人第一步就做反了`,
+    `${core}：一份可以直接照着做的清单`,
+    `别急着下结论，${core}还有一个关键细节`,
+    `${core}，我更建议先从这一步开始`,
+    `为什么大家都在讨论${core}？`,
+    `${core}，这几个常见误区值得先避开`,
+  ];
+}
+
 function makeRewrites(title, platform, category, goal) {
   const topic = extractTopic(title, category);
   const tone = platformTone[platform];
   const suffix = tone.suffixes[lastSeed % tone.suffixes.length];
-  const variants = [
+  const originalVariants = originalTitleRewrites(title);
+  const fallbackVariants = [
     `普通人想搞定${topic}，最该先跑通的不是技巧`,
     `别再盲目折腾${topic}了，先看这 3 个避坑点`,
     `我把${topic}拆成一张清单后，新手终于能开始了`,
@@ -446,15 +504,18 @@ function makeRewrites(title, platform, category, goal) {
     `做${topic}前，我希望有人早点告诉我这些`,
   ];
 
+  const variants = [...originalVariants, ...fallbackVariants];
+
   if (goal === "trust") {
-    variants.push(`我不建议你马上做${topic}，除非先想清楚这 3 件事`);
+    variants.unshift(`${cleanTitlePart(title)}，先别急着相信结论，看看完整过程`);
   }
 
   if (goal === "save") {
-    variants.push(`${topic}资料清单：新手照着做就能少走弯路`);
+    variants.unshift(`${cleanTitlePart(title)}：把关键步骤整理成一份清单`);
   }
 
-  return variants.slice(lastSeed % 3, lastSeed % 3 + 6).map((text, index) => ({
+  const start = lastSeed % 3;
+  return variants.slice(start, start + 6).map((text, index) => ({
     text,
     tags: [tone.name, index % 2 ? "反差" : "收益", goal === "save" ? "收藏" : "点击"],
   }));
@@ -724,11 +785,11 @@ function drawShareCard(canvas, data) {
   context.fillText(`${data.platformName} / ${data.categoryName} / ${data.goalName}`, 112, 180);
 
   context.fillStyle = "#24211d";
-  context.font = "860 64px Inter, system-ui, sans-serif";
-  const titleBottom = wrapCanvasText(context, data.title, 112, 280, 760, 82, 3);
+  context.font = "860 58px Inter, system-ui, sans-serif";
+  const titleBottom = wrapCanvasText(context, data.title, 112, 270, 560, 72, 3);
 
-  const scoreX = 804;
-  const scoreY = 236;
+  const scoreX = 824;
+  const scoreY = 246;
   context.beginPath();
   context.arc(scoreX, scoreY, 118, 0, Math.PI * 2);
   context.fillStyle = "#fbf8f2";
@@ -747,55 +808,55 @@ function drawShareCard(canvas, data) {
   context.fillText(data.label, scoreX, scoreY + 60);
   context.textAlign = "left";
 
-  let cursorY = Math.max(430, titleBottom + 64);
-  fillRoundedRect(context, 112, cursorY, 856, 116, 18, "#fbf8f2");
+  let cursorY = Math.max(450, titleBottom + 40);
+  fillRoundedRect(context, 112, cursorY, 856, 104, 18, "#fbf8f2");
   context.fillStyle = "#46543e";
   context.font = "850 28px Inter, system-ui, sans-serif";
-  context.fillText(`标题类型：${data.type}`, 144, cursorY + 46);
+  context.fillText(`标题类型：${data.type}`, 144, cursorY + 42);
   context.fillStyle = "#756f66";
-  context.font = "700 25px Inter, system-ui, sans-serif";
-  wrapCanvasText(context, data.summary, 144, cursorY + 84, 780, 34, 1);
+  context.font = "700 23px Inter, system-ui, sans-serif";
+  wrapCanvasText(context, data.summary, 144, cursorY + 76, 780, 30, 1);
 
-  cursorY += 170;
-  context.fillStyle = "#24211d";
-  context.font = "850 34px Inter, system-ui, sans-serif";
-  context.fillText("优先补强", 112, cursorY);
-  cursorY += 30;
-
-  data.weakest.forEach((meter) => {
-    cursorY += 42;
-    context.fillStyle = "#24211d";
-    context.font = "820 28px Inter, system-ui, sans-serif";
-    context.fillText(`${meter.label} ${meter.value}`, 112, cursorY);
-    context.fillStyle = "#ebe5dc";
-    fillRoundedRect(context, 312, cursorY - 22, 420, 14, 7, "#ebe5dc");
-    fillRoundedRect(context, 312, cursorY - 22, Math.max(18, 420 * (meter.value / 100)), 14, 7, scoreColor(meter.value));
-    context.fillStyle = "#756f66";
-    context.font = "700 23px Inter, system-ui, sans-serif";
-    wrapCanvasText(context, meter.reason, 112, cursorY + 36, 780, 32, 1);
-    cursorY += 44;
-  });
-
-  cursorY += 44;
-  fillRoundedRect(context, 112, cursorY, 856, 176, 20, "#24211d");
-  context.fillStyle = "#fffdfa";
-  context.font = "850 30px Inter, system-ui, sans-serif";
-  context.fillText("建议改写", 144, cursorY + 52);
-  context.font = "820 34px Inter, system-ui, sans-serif";
-  wrapCanvasText(context, data.rewrite, 144, cursorY + 106, 790, 46, 2);
-
-  cursorY += 236;
+  cursorY += 145;
   context.fillStyle = "#24211d";
   context.font = "850 32px Inter, system-ui, sans-serif";
+  context.fillText("优先补强", 112, cursorY);
+  cursorY += 24;
+
+  data.weakest.forEach((meter) => {
+    cursorY += 36;
+    context.fillStyle = "#24211d";
+    context.font = "820 26px Inter, system-ui, sans-serif";
+    context.fillText(`${meter.label} ${meter.value}`, 112, cursorY);
+    context.fillStyle = "#ebe5dc";
+    fillRoundedRect(context, 312, cursorY - 20, 420, 14, 7, "#ebe5dc");
+    fillRoundedRect(context, 312, cursorY - 20, Math.max(18, 420 * (meter.value / 100)), 14, 7, scoreColor(meter.value));
+    context.fillStyle = "#756f66";
+    context.font = "700 21px Inter, system-ui, sans-serif";
+    wrapCanvasText(context, meter.reason, 112, cursorY + 30, 780, 28, 1);
+    cursorY += 38;
+  });
+
+  cursorY += 28;
+  fillRoundedRect(context, 112, cursorY, 856, 150, 20, "#24211d");
+  context.fillStyle = "#fffdfa";
+  context.font = "850 28px Inter, system-ui, sans-serif";
+  context.fillText("建议改写", 144, cursorY + 44);
+  context.font = "820 30px Inter, system-ui, sans-serif";
+  wrapCanvasText(context, data.rewrite, 144, cursorY + 92, 790, 40, 2);
+
+  cursorY += 190;
+  context.fillStyle = "#24211d";
+  context.font = "850 30px Inter, system-ui, sans-serif";
   context.fillText("一句诊断", 112, cursorY);
   context.fillStyle = "#756f66";
-  context.font = "720 28px Inter, system-ui, sans-serif";
-  wrapCanvasText(context, data.issue, 112, cursorY + 48, 856, 42, 2);
+  context.font = "720 25px Inter, system-ui, sans-serif";
+  wrapCanvasText(context, data.issue, 112, cursorY + 42, 856, 34, 2);
 
   context.fillStyle = "#a39b8f";
-  context.font = "760 24px Inter, system-ui, sans-serif";
-  context.fillText("生成自 Title Lab / 爆款标题体检器", 112, 1304);
-  context.fillText("把标题先体检，再改写，最后复盘。", 112, 1344);
+  context.font = "760 21px Inter, system-ui, sans-serif";
+  context.fillText("生成自 Title Lab / 爆款标题体检器", 112, 1314);
+  context.fillText("把标题先体检，再改写，最后复盘。", 112, 1348);
 }
 
 function scoreColor(score) {
@@ -1116,6 +1177,7 @@ window.titleLabCore = {
   labelForScore,
   makeRewrites,
   normalizeCsvItems,
+  originalTitleRewrites,
   parseCsv,
   renderRewrites,
   scoreTitle,

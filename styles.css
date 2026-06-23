@@ -246,7 +246,8 @@ h3 {
 
 .input-panel {
   display: grid;
-  gap: 15px;
+  align-content: start;
+  gap: 12px;
 }
 
 .result-panel {
@@ -283,18 +284,22 @@ select {
 
 input,
 select {
-  min-height: 42px;
+  min-height: 40px;
   padding: 0 12px;
   font-weight: 720;
 }
 
 textarea {
-  min-height: 118px;
+  min-height: 96px;
   resize: vertical;
-  padding: 14px;
-  font-size: 23px;
+  padding: 12px;
+  font-size: 21px;
   line-height: 1.42;
   font-weight: 760;
+}
+
+#titleInput {
+  min-height: 132px;
 }
 
 .csv-input {
@@ -333,7 +338,7 @@ select:focus {
 .segments {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -351,21 +356,21 @@ select:focus {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 30px;
-  padding: 0 9px;
+  min-height: 24px;
+  padding: 0 7px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--paper-soft);
   color: var(--ink);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .segments input {
-  width: 14px;
-  height: 14px;
-  min-height: 14px;
+  width: 12px;
+  height: 12px;
+  min-height: 12px;
   accent-color: var(--accent);
   flex: 0 0 auto;
   margin: 0;
@@ -679,19 +684,20 @@ select:focus {
   margin-top: 4px;
 }
 
-.share-actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+.analysis-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 8px;
 }
 
-.share-actions .ghost-button {
-  min-height: 42px;
+.analysis-actions .primary-button,
+.analysis-actions .ghost-button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 
 .share-status {
-  flex: 1 1 220px;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
@@ -882,6 +888,10 @@ select:focus {
 
   .hero-actions {
     display: grid;
+  }
+
+  .analysis-actions {
+    grid-template-columns: 1fr;
   }
 
   .score-row {

@@ -211,6 +211,26 @@ test("builds share card data from a diagnosis", () => {
   assert.ok(card.rewrite.includes("副业"));
 });
 
+test("rewrites contrast titles around the original subject", () => {
+  const { core } = createHarness();
+  const rewrites = core.makeRewrites("写小说，你不是文笔差，而是隔断词太多了", "xiaohongshu", "side", "click");
+
+  assert.equal(rewrites.length, 6);
+  assert.ok(rewrites.every((item) => item.text.includes("写小说")));
+  assert.ok(rewrites.some((item) => item.text.includes("文笔差")));
+  assert.ok(rewrites.some((item) => item.text.includes("隔断词太多了")));
+  assert.ok(rewrites.every((item) => !item.text.includes("副业")));
+});
+
+test("rewrites discovery titles without replacing their topic with category words", () => {
+  const { core } = createHarness();
+  const rewrites = core.makeRewrites("活了30年，你才知道衣服该这样收纳", "xiaohongshu", "content", "click");
+
+  assert.equal(rewrites.length, 6);
+  assert.ok(rewrites.every((item) => /衣服|收纳/.test(item.text)));
+  assert.ok(rewrites.every((item) => !item.text.includes("小红书")));
+});
+
 test("renders copy buttons for rewritten titles safely", () => {
   const { core, elements } = createHarness();
   core.renderRewrites([

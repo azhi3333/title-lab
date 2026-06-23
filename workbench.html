@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>创作者内容工作台｜Title Lab</title>
+    <meta name="description" content="从一句灵感生成选题、大纲、小红书正文和标题，并保存到内容表格。" />
+    <meta name="theme-color" content="#6f7f62" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=20260618-5" />
+    <link rel="stylesheet" href="./workbench.css?v=20260618-1" />
+  </head>
+  <body>
+    <main class="shell workbench-shell">
+      <header class="topbar workbench-header">
+        <div>
+          <a class="back-link" href="./index.html">← 返回标题实验室</a>
+          <p class="eyebrow">Content Workbench · Local-first</p>
+          <h1>从一句灵感，到一条可发布内容</h1>
+          <p class="subtitle">拆选题、定大纲、写正文、选标题，最后保存进内容表格。第一版数据只存在本地浏览器。</p>
+        </div>
+        <button class="ghost-button" id="newContentButton" type="button">新建内容</button>
+      </header>
+
+      <nav class="view-tabs" aria-label="工作台视图">
+        <button class="view-tab is-active" data-view="editor" type="button">工作流编辑</button>
+        <button class="view-tab" data-view="table" type="button">内容表格 <span id="contentCount">0</span></button>
+      </nav>
+
+      <section class="workbench-view is-active" id="editorView">
+        <div class="workflow-layout">
+          <aside class="workflow-steps" aria-label="内容生成步骤">
+            <button class="workflow-step is-active" data-step="idea" type="button">
+              <span>01</span><strong>内容想法</strong><small>输入一句原始灵感</small>
+            </button>
+            <button class="workflow-step" data-step="outline" type="button">
+              <span>02</span><strong>选题与大纲</strong><small>拆解人群、痛点和结构</small>
+            </button>
+            <button class="workflow-step" data-step="draft" type="button">
+              <span>03</span><strong>小红书正文</strong><small>生成可编辑草稿</small>
+            </button>
+            <button class="workflow-step" data-step="titles" type="button">
+              <span>04</span><strong>标题候选</strong><small>生成、评分并选择</small>
+            </button>
+            <button class="workflow-step" data-step="save" type="button">
+              <span>05</span><strong>保存入库</strong><small>进入表格并流转状态</small>
+            </button>
+          </aside>
+
+          <section class="workflow-canvas">
+            <div class="step-panel is-active" data-panel="idea">
+              <div class="step-heading">
+                <div><p class="eyebrow">Step 01</p><h2>先写下一句真实想法</h2></div>
+                <span class="status-chip">灵感</span>
+              </div>
+              <label class="field">
+                <span>原始想法</span>
+                <textarea id="ideaInput" rows="6" maxlength="300" placeholder="例如：现在大家都有 AI，写代码外包是不是没机会了？"></textarea>
+              </label>
+              <div class="controls-grid">
+                <label class="field">
+                  <span>内容类型</span>
+                  <select id="workbenchCategory">
+                    <option value="ai">AI 工具</option>
+                    <option value="side">副业</option>
+                    <option value="career">职场</option>
+                    <option value="growth">个人成长</option>
+                    <option value="content">自媒体</option>
+                    <option value="product">产品服务</option>
+                  </select>
+                </label>
+                <label class="field"><span>目标人群</span><input id="audienceInput" type="text" placeholder="留空则自动判断" /></label>
+              </div>
+              <div class="action-row">
+                <button class="primary-button" id="analyzeIdeaButton" type="button">拆解选题与大纲</button>
+                <p class="action-note" id="ideaStatus">当前使用本地生成引擎，不上传内容。</p>
+              </div>
+            </div>
+
+            <div class="step-panel" data-panel="outline">
+              <div class="step-heading">
+                <div><p class="eyebrow">Step 02</p><h2>确认选题方向与内容结构</h2></div>
+                <span class="status-chip">待确认</span>
+              </div>
+              <div class="analysis-grid">
+                <label class="field"><span>目标人群</span><input id="analysisAudience" type="text" /></label>
+                <label class="field"><span>核心痛点</span><input id="analysisPain" type="text" /></label>
+                <label class="field analysis-wide"><span>内容角度</span><input id="analysisAngle" type="text" /></label>
+              </div>
+              <label class="field"><span>内容大纲</span><textarea id="outlineInput" class="outline-textarea" rows="13"></textarea></label>
+              <div class="action-row">
+                <button class="primary-button" id="generateDraftButton" type="button">生成小红书正文</button>
+                <button class="ghost-button" data-go-step="idea" type="button">返回修改想法</button>
+              </div>
+            </div>
+
+            <div class="step-panel" data-panel="draft">
+              <div class="step-heading">
+                <div><p class="eyebrow">Step 03</p><h2>编辑小红书正文</h2></div>
+                <span class="status-chip" id="draftLength">0 字</span>
+              </div>
+              <label class="field"><span>正文草稿</span><textarea id="draftInput" class="draft-textarea" rows="22"></textarea></label>
+              <div class="action-row">
+                <button class="primary-button" id="generateTitlesButton" type="button">生成标题候选</button>
+                <button class="ghost-button" data-go-step="outline" type="button">返回修改大纲</button>
+              </div>
+            </div>
+
+            <div class="step-panel" data-panel="titles">
+              <div class="step-heading">
+                <div><p class="eyebrow">Step 04</p><h2>选择一个发布标题</h2></div>
+                <button class="ghost-button" id="regenerateTitlesButton" type="button">换一批</button>
+              </div>
+              <div class="candidate-list" id="candidateList"></div>
+              <div class="selected-title-bar">
+                <div><span>已选标题</span><strong id="selectedTitleText">尚未选择</strong></div>
+                <button class="primary-button" id="goSaveButton" type="button">确认并保存</button>
+              </div>
+            </div>
+
+            <div class="step-panel" data-panel="save">
+              <div class="step-heading">
+                <div><p class="eyebrow">Step 05</p><h2>保存到内容表格</h2></div>
+                <span class="status-chip">准备入库</span>
+              </div>
+              <div class="save-summary">
+                <div><span>原始想法</span><strong id="saveIdeaSummary">-</strong></div>
+                <div><span>发布标题</span><strong id="saveTitleSummary">-</strong></div>
+                <div>
+                  <span>当前状态</span>
+                  <select id="saveStatus">
+                    <option value="draft">草稿</option>
+                    <option value="ready">待发布</option>
+                    <option value="published">已发布</option>
+                    <option value="review">待复盘</option>
+                  </select>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="primary-button" id="saveContentButton" type="button">保存内容</button>
+                <button class="ghost-button" data-go-step="titles" type="button">返回选择标题</button>
+                <p class="action-note" id="saveStatusText"></p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="workbench-view" id="tableView">
+        <div class="table-toolbar">
+          <div><p class="eyebrow">Content Library</p><h2>内容表格</h2></div>
+          <div class="table-filters">
+            <select id="statusFilter" aria-label="筛选状态">
+              <option value="all">全部状态</option>
+              <option value="draft">草稿</option>
+              <option value="ready">待发布</option>
+              <option value="published">已发布</option>
+              <option value="review">待复盘</option>
+            </select>
+            <button class="primary-button" id="tableNewContentButton" type="button">新建内容</button>
+          </div>
+        </div>
+        <div class="content-table-wrap">
+          <table class="content-table">
+            <thead><tr><th>标题 / 想法</th><th>分类</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead>
+            <tbody id="contentTableBody"></tbody>
+          </table>
+          <div class="table-empty" id="tableEmpty"><strong>还没有内容</strong><p>从一句灵感开始，完成第一条内容工作流。</p></div>
+        </div>
+      </section>
+    </main>
+    <script src="./workbench.js?v=20260618-1"></script>
+  </body>
+</html>
